@@ -6,13 +6,31 @@ namespace Blackjack.Models
     {
         public string Name { get; }
         public List<Card> Cards { get; }
+        public bool IsBusted => CalculateHandValue() > 21;
+        public bool IsStanding { get; private set; }
 
         public Player(string name)
         {
             Name = name;
             Cards = new List<Card>();
         }
+        public void Reset()
+        {
+            ClearCards();
+            IsStanding = false;
+        }
 
+        public void Stand()
+        {
+            IsStanding = true;
+        }
+
+        public Card Hit(Deck deck)
+        {
+            Card card = deck.DealCard();
+            AddCard(card);
+            return card;
+        }
         public void AddCard(Card card)
         {
             Cards.Add(card);
@@ -59,5 +77,7 @@ namespace Blackjack.Models
 
             return string.Join(", ", Cards);
         }
+        // Geeft de speler de optie om te hitten of te passen
+
     }
 }

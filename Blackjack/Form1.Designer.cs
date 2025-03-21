@@ -16,9 +16,11 @@ namespace Blackjack
         private Label playersLabel;
         private Button startGameButton;
         private Label statusLabel;
-        // Nieuwe controls om de dealer en spelers beter weer te geven
         private Label dealerLabel;
         private Label playersInfoLabel;
+        private Button hitButton;
+        private Button standButton;
+        private Button dealerHitButton;
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -43,7 +45,7 @@ namespace Blackjack
         {
             this.components = new Container();
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 600); // Vergroot het formulier
+            this.ClientSize = new System.Drawing.Size(800, 600);
             this.Text = "Blackjack Game";
 
             this.shuffleButton = new Button();
@@ -95,13 +97,13 @@ namespace Blackjack
             this.playersInfoLabel.Text = "Spelers:";
             this.playersInfoLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
 
-            // NumericUpDown voor aantal spelers
+            // Knop om aantal spelers in te stellen
             this.playersNumericUpDown = new NumericUpDown();
             this.playersNumericUpDown.Location = new System.Drawing.Point(50, 350);
             this.playersNumericUpDown.Name = "playersNumericUpDown";
             this.playersNumericUpDown.Size = new System.Drawing.Size(100, 30);
             this.playersNumericUpDown.Minimum = 1;
-            this.playersNumericUpDown.Maximum = 7;
+            this.playersNumericUpDown.Maximum = 4;
             this.playersNumericUpDown.Value = 1;
 
             // Label voor instructie
@@ -129,9 +131,35 @@ namespace Blackjack
             this.statusLabel.AutoSize = false;
             this.statusLabel.BorderStyle = BorderStyle.FixedSingle; // Een rand toevoegen voor zichtbaarheid
 
-            // 
-            // Form1 - Voeg alle controls toe
-            // 
+            // Hit button
+            this.hitButton = new Button();
+            this.hitButton.Location = new System.Drawing.Point(290, 50);
+            this.hitButton.Name = "hitButton";
+            this.hitButton.Size = new System.Drawing.Size(100, 30);
+            this.hitButton.Text = "Hit";
+            this.hitButton.UseVisualStyleBackColor = true;
+            this.hitButton.Enabled = false;
+            this.hitButton.Click += new System.EventHandler(this.hitButton_Click);
+            // Stand button
+            this.standButton = new Button();
+            this.standButton.Location = new System.Drawing.Point(410, 50);
+            this.standButton.Name = "Standbutton";
+            this.standButton.Size = new System.Drawing.Size(100, 30);
+            this.standButton.Text = "Stand";
+            this.standButton.UseVisualStyleBackColor = true;
+            this.standButton.Enabled = false;
+            this.standButton.Click += new System.EventHandler(this.standButton_Click);
+            // Dealer hit button
+            this.dealerHitButton = new Button();
+            this.dealerHitButton.Location = new System.Drawing.Point(530, 50);
+            this.dealerHitButton.Name = "dealerHitButton";
+            this.dealerHitButton.Size = new System.Drawing.Size(100, 30);
+            this.dealerHitButton.Text = "Hit (Dealer)";
+            this.dealerHitButton.UseVisualStyleBackColor = true;
+            this.dealerHitButton.Enabled = false;
+            this.dealerHitButton.Click += new System.EventHandler(this.dealerHitButton_Click);
+
+
             this.Controls.Add(this.shuffleButton);
             this.Controls.Add(this.drawButton);
             this.Controls.Add(this.dealerLabel);
@@ -141,6 +169,9 @@ namespace Blackjack
             this.Controls.Add(this.playersLabel);
             this.Controls.Add(this.startGameButton);
             this.Controls.Add(this.statusLabel);
+            this.Controls.Add(this.hitButton);
+            this.Controls.Add(this.standButton);
+            this.Controls.Add(this.dealerHitButton);
         }
 
         #endregion

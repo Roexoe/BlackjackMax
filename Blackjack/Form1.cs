@@ -37,6 +37,8 @@ namespace Blackjack
             // Zet knoppen uit bij start
             drawButton.Enabled = false;
             shuffleButton.Enabled = true;
+            hitButton.Enabled = false;
+            standButton.Enabled = false;
         }
 
         private void shuffleButton_Click(object sender, EventArgs e)
@@ -91,6 +93,8 @@ namespace Blackjack
                 drawButton.Enabled = true;
                 startGameButton.Enabled = false;
                 playersNumericUpDown.Enabled = false;
+                hitButton.Enabled = false;
+                standButton.Enabled = false;
 
                 // Toon instructie
                 cardLabel.Text = "Klik op 'Deal Card' om de verborgen kaart voor de dealer te delen.";
@@ -100,6 +104,17 @@ namespace Blackjack
             else
             {
                 statusLabel.Text = "Stel een geldig aantal spelers in (minimaal 1).";
+            }
+        }
+
+        private void dealerHitButton_Click(object sender, EventArgs e)
+        {
+            dealer.TakeVisibleCard();
+            UpdateGameDisplay();
+            if (!dealer.ShouldHit())
+            {
+                dealerHitButton.Enabled = false;
+                DetermineResults();
             }
         }
 
@@ -158,6 +173,7 @@ namespace Blackjack
         private void CheckForBlackjacks()
         {
             string result = "";
+            bool anyBlackjacks = false;
 
             // Controleer eerst of de dealer mogelijk blackjack heeft
             if (dealer.MightHaveBlackjack())
@@ -166,6 +182,7 @@ namespace Blackjack
                 if (dealer.HasBlackjack())
                 {
                     result += "Dealer heeft blackjack! ";
+                    anyBlackjacks = true;
 
                     // Controleer welke spelers ook blackjack hebben (gelijkspel)
                     List<string> playersWithBlackjack = new List<string>();
@@ -174,6 +191,7 @@ namespace Blackjack
                         if (player.HasBlackjack())
                         {
                             playersWithBlackjack.Add(player.Name);
+                            player.Stand(); // Deze spelers doen niet meer mee
                         }
                     }
 
@@ -183,6 +201,10 @@ namespace Blackjack
                     }
 
                     result += "Overige spelers verliezen.";
+
+                    // Als de dealer blackjack heeft, is het spel voorbij
+                    currentStep = DealingStep.EndGame;
+                    ResetGameControls();
                 }
                 else
                 {
@@ -195,6 +217,8 @@ namespace Blackjack
                         if (player.HasBlackjack())
                         {
                             playersWithBlackjack.Add(player.Name);
+                            player.Stand(); // Deze spelers doen niet meer mee
+                            anyBlackjacks = true;
                         }
                     }
 
@@ -217,6 +241,8 @@ namespace Blackjack
                     if (player.HasBlackjack())
                     {
                         playersWithBlackjack.Add(player.Name);
+                        player.Stand(); // Deze spelers doen niet meer mee
+                        anyBlackjacks = true;
                     }
                 }
 
@@ -232,13 +258,160 @@ namespace Blackjack
 
             statusLabel.Text = result;
 
-            // Voor nu eindigen we het spel na de blackjack check
-            currentStep = DealingStep.EndGame;
-            ResetGameControls();
+            // Als er geen dealer blackjack is, ga door naar de beurt van de eerste speler
+            if (!dealer.HasBlackjack())
+            {
+                currentStep = DealingStep.PlayersTurn;
+                currentPlayerIndex = 0;
 
-            // Toon alle kaarten, inclusief de verborgen kaart van de dealer
+                // Zoek de eerste speler die nog geen blackjack heeft
+                while (currentPlayerIndex < players.Count && players[currentPlayerIndex].IsStanding)
+                {
+                    currentPlayerIndex++;
+                }
+
+                if (currentPlayerIndex < players.Count)
+                {
+                    // Activeer hit/stand knoppen
+                    hitButton.Enabled = true;
+                    standButton.Enabled = true;
+                    drawButton.Enabled = false;
+
+                    // Update instructies
+                    statusLabel.Text += $" {players[currentPlayerIndex].Name} is aan de beurt.";
+                }
+                else
+                {
+                    // Alle spelers hebben blackjack, ga naar dealer beurt
+                    currentStep = DealingStep.DealerTurn;
+                    DealerPlay();
+                }
+            }
+
+            // Update de display
             UpdateGameDisplay();
         }
+
+        // Speler kiest om nog een kaart te nemen
+        private void hitButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Huidige speler neemt een kaart
+                Player currentPlayer = players[currentPlayerIndex];
+                currentPlayer.Hit(deck);
+
+                // Update display
+                UpdateGameDisplay();
+
+                // Controleer of speler heeft verloren (busted)
+                if (currentPlayer.IsBusted)
+                {
+                    statusLabel.Text = $"{currentPlayer.Name} is busted! (Waarde: {currentPlayer.CalculateHandValue()})";
+                    // Automatisch standen voor deze speler en doorgaan naar de volgende
+                    standButton_Click(sender, e);
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                statusLabel.Text = ex.Message;
+            }
+        }
+
+        // Speler kiest om te passen (geen kaarten meer)
+        private void standButton_Click(object sender, EventArgs e)
+        {
+            // Huidige speler past
+            players[currentPlayerIndex].Stand();
+
+            // Ga naar de volgende speler of naar de dealer als alle spelers klaar zijn
+            currentPlayerIndex++;
+
+            // Zoek de volgende speler die nog geen blackjack heeft en niet staat
+            while (currentPlayerIndex < players.Count && players[currentPlayerIndex].IsStanding)
+            {
+                currentPlayerIndex++;
+            }
+
+            if (currentPlayerIndex < players.Count)
+            {
+                // Volgende speler is aan de beurt
+                statusLabel.Text = $"{players[currentPlayerIndex].Name} is aan de beurt.";
+            }
+            else
+            {
+                // Alle spelers zijn geweest, nu is het de beurt aan de dealer
+                currentStep = DealingStep.DealerTurn;
+                hitButton.Enabled = false;
+                standButton.Enabled = false;
+                DealerPlay();
+            }
+
+            UpdateGameDisplay();
+        }
+
+        // Dealer speelt zijn beurt
+        private void DealerPlay()
+        {
+            // Dealer speelt zijn beurt
+            statusLabel.Text = "De dealer speelt nu...";
+
+            // Dealer blijft kaarten trekken tot minstens 17
+            while (dealer.ShouldHit())
+            {
+                dealer.TakeVisibleCard();
+            }
+
+            // Update display
+            UpdateGameDisplay();
+
+            // Bepaal de resultaten
+            DetermineResults();
+        }
+
+        // Bepaal de resultaten van het spel
+        private void DetermineResults()
+        {
+            int dealerValue = dealer.CalculateHandValue();
+            bool dealerBusted = dealerValue > 21;
+            string results = dealerBusted ?
+                $"Dealer is busted met {dealerValue}! " :
+                $"Dealer eindigt met {dealerValue}. ";
+
+            // Controleer uitslag voor elke speler
+            foreach (var player in players)
+            {
+                int playerValue = player.CalculateHandValue();
+
+                if (player.IsBusted)
+                {
+                    results += $"{player.Name} verliest (busted). ";
+                }
+                else if (dealerBusted)
+                {
+                    results += $"{player.Name} wint (dealer busted). ";
+                }
+                else if (playerValue > dealerValue)
+                {
+                    results += $"{player.Name} wint met {playerValue} tegen {dealerValue}. ";
+                }
+                else if (playerValue < dealerValue)
+                {
+                    results += $"{player.Name} verliest met {playerValue} tegen {dealerValue}. ";
+                }
+                else
+                {
+                    results += $"{player.Name} speelt gelijk met {playerValue}. ";
+                }
+            }
+
+            statusLabel.Text = results;
+
+            // Spel is klaar, reset controls
+            currentStep = DealingStep.EndGame;
+            ResetGameControls();
+        }
+
 
         // Update het scherm om huidige spelstatus te tonen
         private void UpdateGameDisplay()
@@ -249,13 +422,13 @@ namespace Blackjack
             {
                 dealerInfo += "Geen kaarten";
             }
-            else if (currentStep == DealingStep.EndGame)
+            else if (currentStep == DealingStep.EndGame || currentStep == DealingStep.DealerTurn)
             {
-                dealerInfo += $"Verborgen kaart: {dealer.RevealHiddenCard()}, Zichtbare kaarten: {dealer.GetVisibleCardsString()} - Totale waarde: {dealer.CalculateHandValue()}";
+                dealerInfo += $"Zichtbare kaarten: {dealer.GetVisibleCardsString()} - Totale waarde: {dealer.CalculateHandValue()}";
             }
             else
             {
-                dealerInfo += $"[Verborgen], Zichtbare kaarten: {dealer.GetVisibleCardsString()}";
+                dealerInfo += $" Zichtbare kaarten: {dealer.GetVisibleCardsString()}";
             }
             dealerLabel.Text = dealerInfo;
 
@@ -264,12 +437,29 @@ namespace Blackjack
             for (int i = 0; i < players.Count; i++)
             {
                 Player player = players[i];
+
+                // Markeer de huidige speler
+                if (currentStep == DealingStep.PlayersTurn && i == currentPlayerIndex)
+                {
+                    playerCardsInfo += "> ";  // Pijl om aan te geven wie aan de beurt is
+                }
+
                 playerCardsInfo += $"{player.Name}: {player.GetCardsString()}";
 
                 // Toon hand waarde als er kaarten gedeeld zijn
                 if (player.Cards.Count > 0)
                 {
                     playerCardsInfo += $" (Waarde: {player.CalculateHandValue()})";
+
+                    // Toon status (busted of standing)
+                    if (player.IsBusted)
+                    {
+                        playerCardsInfo += " [BUSTED]";
+                    }
+                    else if (player.IsStanding)
+                    {
+                        playerCardsInfo += " [STAND]";
+                    }
                 }
 
                 if (i < players.Count - 1)
@@ -289,6 +479,8 @@ namespace Blackjack
             startGameButton.Enabled = true;
             playersNumericUpDown.Enabled = true;
             drawButton.Enabled = false;
+            hitButton.Enabled = false;
+            standButton.Enabled = false;
         }
     }
 }
