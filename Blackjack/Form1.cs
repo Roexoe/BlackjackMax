@@ -119,55 +119,71 @@ namespace Blackjack
         }
 
         // Gaat naar de volgende stap in het uitdelen van kaarten
+        private bool AskDealerApproval(string message)
+        {
+            var result = MessageBox.Show(message, "Dealer Approval", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            return result == DialogResult.Yes;
+        }
+
         private void ProceedToNextDealingStep()
         {
             switch (currentStep)
             {
                 case DealingStep.DealerHidden:
-                    // Deel verborgen kaart aan dealer
-                    dealer.TakeHiddenCard();
-                    currentStep = DealingStep.PlayersFirstCard;
-                    statusLabel.Text = "Verborgen kaart gedeeld aan dealer. Deel nu kaarten aan spelers.";
+                    if (AskDealerApproval("Wilt u de verborgen kaart aan de dealer delen?"))
+                    {
+                        dealer.TakeHiddenCard();
+                        currentStep = DealingStep.PlayersFirstCard;
+                        statusLabel.Text = "Verborgen kaart gedeeld aan dealer. Deel nu kaarten aan spelers.";
+                    }
                     break;
 
                 case DealingStep.PlayersFirstCard:
-                    // Deel eerste kaart aan alle spelers
-                    foreach (var player in players)
+                    if (AskDealerApproval("Wilt u de eerste kaart aan alle spelers delen?"))
                     {
-                        player.AddCard(deck.DealCard());
+                        foreach (var player in players)
+                        {
+                            player.AddCard(deck.DealCard());
+                        }
+                        currentStep = DealingStep.DealerSecondCard;
+                        statusLabel.Text = "Eerste kaart gedeeld aan alle spelers. Deel nu tweede kaart aan dealer.";
                     }
-                    currentStep = DealingStep.DealerSecondCard;
-                    statusLabel.Text = "Eerste kaart gedeeld aan alle spelers. Deel nu tweede kaart aan dealer.";
                     break;
 
                 case DealingStep.DealerSecondCard:
-                    // Deel tweede (zichtbare) kaart aan dealer
-                    dealer.TakeVisibleCard();
-                    currentStep = DealingStep.PlayersSecondCard;
-                    statusLabel.Text = "Tweede kaart gedeeld aan dealer. Deel nu tweede kaart aan spelers.";
+                    if (AskDealerApproval("Wilt u de tweede (zichtbare) kaart aan de dealer delen?"))
+                    {
+                        dealer.TakeVisibleCard();
+                        currentStep = DealingStep.PlayersSecondCard;
+                        statusLabel.Text = "Tweede kaart gedeeld aan dealer. Deel nu tweede kaart aan spelers.";
+                    }
                     break;
 
                 case DealingStep.PlayersSecondCard:
-                    // Deel tweede kaart aan alle spelers
-                    foreach (var player in players)
+                    if (AskDealerApproval("Wilt u de tweede kaart aan alle spelers delen?"))
                     {
-                        player.AddCard(deck.DealCard());
+                        foreach (var player in players)
+                        {
+                            player.AddCard(deck.DealCard());
+                        }
+                        currentStep = DealingStep.CheckBlackjack;
+                        statusLabel.Text = "Tweede kaart gedeeld aan alle spelers. Controleer nu op blackjack.";
                     }
-                    currentStep = DealingStep.CheckBlackjack;
-                    statusLabel.Text = "Tweede kaart gedeeld aan alle spelers. Controleer nu op blackjack.";
                     break;
 
                 case DealingStep.CheckBlackjack:
-                    // Controleer op blackjack bij de dealer en spelers
-                    CheckForBlackjacks();
+                    if (AskDealerApproval("Wilt u controleren op blackjack bij de dealer en spelers?"))
+                    {
+                        CheckForBlackjacks();
+                    }
                     break;
 
-                // Hier zouden meer stappen kunnen komen voor het spel zelf, dealer's beurt, etc.
                 default:
                     statusLabel.Text = "Geen verdere acties mogelijk op dit moment.";
                     break;
             }
         }
+
 
         // Controleer op blackjacks
         private void CheckForBlackjacks()
@@ -351,15 +367,28 @@ namespace Blackjack
         }
 
         // Dealer speelt zijn beurt
+        private bool AskDealerForCard()
+        {
+            var result = MessageBox.Show("Wilt u een kaart pakken?", "Dealer Approval", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            return result == DialogResult.Yes;
+        }
+
         private void DealerPlay()
         {
             // Dealer speelt zijn beurt
             statusLabel.Text = "De dealer speelt nu...";
 
-            // Dealer blijft kaarten trekken tot minstens 17
-            while (dealer.ShouldHit())
+            // Dealer blijft kaarten trekken tot minstens 17 of totdat hij besluit te stoppen
+            while (dealer.ShouldHit() && AskDealerForCard())
             {
                 dealer.TakeVisibleCard();
+                UpdateGameDisplay();
+
+                // Controleer of de dealer al 17 of hoger heeft bereikt
+                if (dealer.CalculateHandValue() >= 17)
+                {
+                    break;
+                }
             }
 
             // Update display
