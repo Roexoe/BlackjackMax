@@ -166,8 +166,10 @@ namespace Blackjack
                         {
                             player.AddCard(deck.DealCard());
                         }
+                        // Maak de verborgen kaart van de dealer zichtbaar
+                        dealer.RevealHiddenCard();
                         currentStep = DealingStep.CheckBlackjack;
-                        statusLabel.Text = "Tweede kaart gedeeld aan alle spelers. Controleer nu op blackjack.";
+                        statusLabel.Text = "Tweede kaart gedeeld aan alle spelers. Verborgen kaart van de dealer is nu zichtbaar. Controleer nu op blackjack.";
                     }
                     break;
 

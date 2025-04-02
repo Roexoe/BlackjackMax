@@ -123,6 +123,7 @@ namespace Blackjack.Models
             return CalculateHandValue() < 17;
         }
 
+
         public void DealerTurn()
         {
             // Make sure to call RevealHiddenCard if there is a hidden card
