@@ -186,7 +186,6 @@ namespace Blackjack
             }
         }
 
-
         // Controleer op blackjacks
         private void CheckForBlackjacks()
         {
@@ -197,8 +196,9 @@ namespace Blackjack
             if (dealer.MightHaveBlackjack())
             {
                 // Kijk of de dealer inderdaad blackjack heeft
-                if (dealer.HasBlackjack())
+                if (dealer.HiddenCardMakesBlackjack())
                 {
+                    dealer.RevealHiddenCard();
                     result += "Dealer heeft blackjack! ";
                     anyBlackjacks = true;
 
@@ -380,15 +380,33 @@ namespace Blackjack
             // Dealer speelt zijn beurt
             statusLabel.Text = "De dealer speelt nu...";
 
-            // Dealer blijft kaarten trekken tot minstens 17 of totdat hij besluit te stoppen
-            while (dealer.ShouldHit() && AskDealerForCard())
+            // First reveal the hidden card
+            if (dealer.HasHiddenCard())  // We'll need to add this method to Dealer
             {
-                dealer.TakeVisibleCard();
-                UpdateGameDisplay();
-
-                // Controleer of de dealer al 17 of hoger heeft bereikt
-                if (dealer.CalculateHandValue() >= 17)
+                if (AskDealerApproval("Wilt u de verborgen kaart onthullen?"))
                 {
+                    dealer.RevealHiddenCard();
+                    UpdateGameDisplay();
+                    statusLabel.Text = "Dealer heeft verborgen kaart onthuld.";
+                }
+            }
+
+            // Dealer blijft kaarten trekken tot minstens 17 of totdat hij besluit te stoppen
+            while (dealer.ShouldHit())
+            {
+                if (AskDealerForCard())
+                {
+                    dealer.TakeVisibleCard();
+                    UpdateGameDisplay();
+                    statusLabel.Text = $"Dealer heeft een kaart gepakt. Totale waarde: {dealer.CalculateHandValue()}";
+
+                    // Give time to see the card
+                    Application.DoEvents();
+                    System.Threading.Thread.Sleep(1000);
+                }
+                else
+                {
+                    // Dealer chooses not to take a card
                     break;
                 }
             }
@@ -443,7 +461,6 @@ namespace Blackjack
             ResetGameControls();
         }
 
-
         // Update het scherm om huidige spelstatus te tonen
         private void UpdateGameDisplay()
         {
@@ -459,7 +476,9 @@ namespace Blackjack
             }
             else
             {
-                dealerInfo += $" Zichtbare kaarten: {dealer.GetVisibleCardsString()}";
+                // Add indication of hidden card
+                string hiddenCardInfo = dealer.HasHiddenCard() ? " [+ 1 verborgen kaart]" : "";
+                dealerInfo += $"Zichtbare kaarten: {dealer.GetVisibleCardsString()}{hiddenCardInfo}";
             }
             dealerLabel.Text = dealerInfo;
 
