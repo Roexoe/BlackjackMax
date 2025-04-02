@@ -32,25 +32,19 @@ namespace Blackjack.Models
         // Pakt een zichtbare kaart voor de dealer
         public Card TakeVisibleCard()
         {
-            if (hiddenCard != null)
-            {
-                visibleCards.Add(hiddenCard);
-                hiddenCard = null;
-            }
-
             Card card = deck.DealCard();
             visibleCards.Add(card);
             return card;
         }
 
-
         // Maakt de verborgen kaart zichtbaar
-        public Card RevealHiddenCard()
+        public void RevealHiddenCard()
         {
             if (hiddenCard == null)
                 throw new InvalidOperationException("Er is geen verborgen kaart!");
 
-            return hiddenCard;
+            visibleCards.Insert(0, hiddenCard);
+            hiddenCard = null;
         }
 
         // Controleert of de dealer blackjack heeft (21 punten met 2 kaarten)
@@ -115,11 +109,12 @@ namespace Blackjack.Models
         }
 
         // Dealer pakt tot hij 17 of hoger heeft.
-       public bool ShouldHit()
+        public bool ShouldHit()
         {
             return CalculateHandValue() < 17;
         }
-        public void playTurn()
+
+        public void PlayTurn()
         {
             if (hiddenCard != null)
             {
@@ -133,7 +128,8 @@ namespace Blackjack.Models
                 TakeVisibleCard();
             }
         }
-        public void dealerTurn()
+
+        public void DealerTurn()
         {
             if (hiddenCard != null)
             {
@@ -146,6 +142,5 @@ namespace Blackjack.Models
                 TakeVisibleCard();
             }
         }
-
     }
 }
