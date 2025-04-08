@@ -7,7 +7,7 @@ namespace Blackjack
 {
     public partial class Form1 : Form
     {
-        private Deck deck;
+        private Shoe shoe; 
         private Dealer dealer;
         private List<Player> players;
         private bool gameStarted = false;
@@ -30,8 +30,8 @@ namespace Blackjack
         public Form1()
         {
             InitializeComponent();
-            deck = new Deck();
-            dealer = new Dealer(deck);
+            shoe = new Shoe(1); // Default 1 deck
+            dealer = new Dealer(shoe); // Pas Dealer constructor aan om Shoe te accepteren
             players = new List<Player>();
 
             // Zet knoppen uit bij start
@@ -43,8 +43,11 @@ namespace Blackjack
 
         private void shuffleButton_Click(object sender, EventArgs e)
         {
-            deck.Shuffle();
-            statusLabel.Text = "Deck geschud!";
+            // We kunnen de shuffle functionaliteit opnieuw implementeren voor de Shoe
+            // of we kunnen een nieuwe Shoe aanmaken met het ingestelde aantal decks
+            int numberOfDecks = (int)decksNumericUpDown.Value;
+            shoe = new Shoe(numberOfDecks);
+            statusLabel.Text = $"Nieuwe shoe gemaakt met {numberOfDecks} deck(s)!";
         }
 
         private void drawButton_Click(object sender, EventArgs e)
@@ -64,8 +67,9 @@ namespace Blackjack
         {
             // Controleer of er geldig aantal spelers is
             int numberOfPlayers = (int)playersNumericUpDown.Value;
+            int numberOfDecks = (int)decksNumericUpDown.Value;
 
-            if (numberOfPlayers > 0)
+            if (numberOfPlayers > 0 && numberOfDecks > 0)
             {
                 // Start het spel
                 gameStarted = true;
@@ -77,22 +81,22 @@ namespace Blackjack
                     players.Add(new Player($"Speler {i}"));
                 }
 
-                // Reset en schud deck
-                deck.ResetDeck();
-                deck.Shuffle();
+                // Maak een nieuwe shoe
+                shoe = new Shoe(numberOfDecks);
 
                 // Reset de dealer
-                dealer = new Dealer(deck);
+                dealer = new Dealer(shoe);
 
                 // Reset de huidige stap
                 currentStep = DealingStep.DealerHidden;
                 currentPlayerIndex = 0;
 
                 // Update UI
-                statusLabel.Text = $"Spel gestart met {numberOfPlayers} spelers! Deck is geschud. Klik op 'Deal Card' om met delen te beginnen.";
+                statusLabel.Text = $"Spel gestart met {numberOfPlayers} spelers en {numberOfDecks} deck(s)! Klik op 'Deal Card' om met delen te beginnen.";
                 drawButton.Enabled = true;
                 startGameButton.Enabled = false;
                 playersNumericUpDown.Enabled = false;
+                decksNumericUpDown.Enabled = false;
                 hitButton.Enabled = false;
                 standButton.Enabled = false;
 
@@ -103,9 +107,10 @@ namespace Blackjack
             }
             else
             {
-                statusLabel.Text = "Stel een geldig aantal spelers in (minimaal 1).";
+                statusLabel.Text = "Stel een geldig aantal spelers en decks in (minimaal 1).";
             }
         }
+
 
         private void dealerHitButton_Click(object sender, EventArgs e)
         {
@@ -143,7 +148,7 @@ namespace Blackjack
                     {
                         foreach (var player in players)
                         {
-                            player.AddCard(deck.DealCard());
+                            player.AddCard(shoe.DealCard());
                         }
                         currentStep = DealingStep.DealerSecondCard;
                         statusLabel.Text = "Eerste kaart gedeeld aan alle spelers. Deel nu tweede kaart aan dealer.";
@@ -164,7 +169,7 @@ namespace Blackjack
                     {
                         foreach (var player in players)
                         {
-                            player.AddCard(deck.DealCard());
+                            player.AddCard(shoe.DealCard());
                         }
                         // Maak de verborgen kaart van de dealer zichtbaar
                         dealer.RevealHiddenCard();
@@ -317,7 +322,7 @@ namespace Blackjack
             {
                 // Huidige speler neemt een kaart
                 Player currentPlayer = players[currentPlayerIndex];
-                currentPlayer.Hit(deck);
+                currentPlayer.Hit(shoe);
 
                 // Update display
                 UpdateGameDisplay();
@@ -464,6 +469,9 @@ namespace Blackjack
         // Update het scherm om huidige spelstatus te tonen
         private void UpdateGameDisplay()
         {
+            // Voeg shoe informatie toe bovenaan
+            string shoeInfo = $"Shoe: {shoe.RemainingCards} kaarten over, {shoe.RemainingDecks} deck(s) over ({shoe.RemainingPercentage:F1}%)";
+
             // Update dealer informatie
             string dealerInfo = "Dealer: ";
             if (currentStep == DealingStep.DealerHidden)
@@ -520,7 +528,13 @@ namespace Blackjack
             cardLabel.Text = playerCardsInfo;
 
             // Update spelers label
-            playersInfoLabel.Text = $"Spelers ({players.Count}):";
+            playersInfoLabel.Text = $"Spelers ({players.Count}): {shoeInfo}";
+
+            // Alternatief: voeg shoe informatie toe aan bestaande statusLabel tekst
+            if (!statusLabel.Text.Contains("Shoe:"))
+            {
+                statusLabel.Text = $"{statusLabel.Text} | {shoeInfo}";
+            }
         }
 
         // Reset de controls voor een nieuw spel
@@ -528,6 +542,7 @@ namespace Blackjack
         {
             startGameButton.Enabled = true;
             playersNumericUpDown.Enabled = true;
+            decksNumericUpDown.Enabled = true;
             drawButton.Enabled = false;
             hitButton.Enabled = false;
             standButton.Enabled = false;

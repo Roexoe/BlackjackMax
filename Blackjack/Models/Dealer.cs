@@ -7,11 +7,11 @@ namespace Blackjack.Models
     {
         private Card? hiddenCard;
         private List<Card> visibleCards;
-        private Deck deck;
+        private Shoe shoe;
 
-        public Dealer(Deck deck)
+        public Dealer(Shoe shoe)
         {
-            this.deck = deck;
+            this.shoe = shoe;
             visibleCards = new List<Card>();
             ResetHand();
         }
@@ -26,13 +26,13 @@ namespace Blackjack.Models
         // Pakt de eerste (verborgen) kaart voor de dealer
         public void TakeHiddenCard()
         {
-            hiddenCard = deck.DealCard();
+            hiddenCard = shoe.DealCard();
         }
 
         // Pakt een zichtbare kaart voor de dealer
         public Card TakeVisibleCard()
         {
-            Card card = deck.DealCard();
+            Card card = shoe.DealCard();
             visibleCards.Add(card);
             return card;
         }

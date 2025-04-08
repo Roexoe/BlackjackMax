@@ -14,6 +14,7 @@ namespace Blackjack.Models
             Name = name;
             Cards = new List<Card>();
         }
+
         public void Reset()
         {
             ClearCards();
@@ -25,12 +26,13 @@ namespace Blackjack.Models
             IsStanding = true;
         }
 
-        public Card Hit(Deck deck)
+        public Card Hit(Shoe shoe)
         {
-            Card card = deck.DealCard();
+            Card card = shoe.DealCard();
             AddCard(card);
             return card;
         }
+
         public void AddCard(Card card)
         {
             Cards.Add(card);
@@ -53,11 +55,9 @@ namespace Blackjack.Models
                     acesCount++;
             }
 
-            // Azen kunnen 1 of 11 punten waard zijn
-            // Als de totale waarde > 21 is en we hebben azen, dan maken we de waarde van een aas 1 in plaats van 11
             while (total > 21 && acesCount > 0)
             {
-                total -= 10; // Verlaag de totale waarde met 10 (11 - 1)
+                total -= 10;
                 acesCount--;
             }
 
@@ -69,7 +69,6 @@ namespace Blackjack.Models
             return Cards.Count == 2 && CalculateHandValue() == 21;
         }
 
-        // Geeft een string representatie van de kaarten in de hand
         public string GetCardsString()
         {
             if (Cards.Count == 0)
@@ -77,7 +76,5 @@ namespace Blackjack.Models
 
             return string.Join(", ", Cards);
         }
-        // Geeft de speler de optie om te hitten of te passen
-
     }
 }
