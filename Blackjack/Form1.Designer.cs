@@ -20,6 +20,8 @@ namespace Blackjack
         private Label playersInfoLabel;
         private Button hitButton;
         private Button standButton;
+        private NumericUpDown decksNumericUpDown;
+        private Label decksLabel;
         private Button dealerHitButton;
 
         /// <summary>
@@ -106,6 +108,21 @@ namespace Blackjack
             this.playersNumericUpDown.Maximum = 4;
             this.playersNumericUpDown.Value = 1;
 
+
+            this.decksNumericUpDown = new NumericUpDown();
+            this.decksNumericUpDown.Location = new System.Drawing.Point(370, 350);
+            this.decksNumericUpDown.Name = "decksNumericUpDown";
+            this.decksNumericUpDown.Size = new System.Drawing.Size(100, 30);
+            this.decksNumericUpDown.Minimum = 1;
+            this.decksNumericUpDown.Maximum = 8;
+            this.decksNumericUpDown.Value = 1;
+
+            this.decksLabel = new Label();
+            this.decksLabel.Location = new System.Drawing.Point(480, 350);
+            this.decksLabel.Name = "decksLabel";
+            this.decksLabel.Size = new System.Drawing.Size(200, 30);
+            this.decksLabel.Text = "Aantal decks in shoe:";
+
             // Label voor instructie
             this.playersLabel = new Label();
             this.playersLabel.Location = new System.Drawing.Point(160, 350);
@@ -172,6 +189,8 @@ namespace Blackjack
             this.Controls.Add(this.hitButton);
             this.Controls.Add(this.standButton);
             this.Controls.Add(this.dealerHitButton);
+            this.Controls.Add(this.decksNumericUpDown);
+            this.Controls.Add(this.decksLabel);
         }
 
         #endregion
