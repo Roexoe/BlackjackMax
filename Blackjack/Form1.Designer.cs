@@ -57,12 +57,12 @@ namespace Blackjack
             // 
             // shuffleButton
             // 
-            this.shuffleButton.Location = new System.Drawing.Point(50, 50);
-            this.shuffleButton.Name = "shuffleButton";
-            this.shuffleButton.Size = new System.Drawing.Size(100, 30);
-            this.shuffleButton.Text = "Shuffle";
-            this.shuffleButton.UseVisualStyleBackColor = true;
-            this.shuffleButton.Click += new System.EventHandler(this.shuffleButton_Click);
+            //this.shuffleButton.Location = new System.Drawing.Point(50, 50);
+            //this.shuffleButton.Name = "shuffleButton";
+            //this.shuffleButton.Size = new System.Drawing.Size(100, 30);
+            //this.shuffleButton.Text = "Shuffle";
+            //this.shuffleButton.UseVisualStyleBackColor = true;
+            //this.shuffleButton.Click += new System.EventHandler(this.shuffleButton_Click);
 
             // 
             // drawButton
@@ -144,7 +144,7 @@ namespace Blackjack
             this.statusLabel.Location = new System.Drawing.Point(50, 450);
             this.statusLabel.Name = "statusLabel";
             this.statusLabel.Size = new System.Drawing.Size(700, 60); // Groter maken voor meer informatie
-            this.statusLabel.Text = "Stel het aantal spelers in en laat de dealer het spel starten.";
+            this.statusLabel.Text = "Stel het aantal spelers en de hoeveelheid decks in de shoe in en laat de dealer het spel starten.";
             this.statusLabel.AutoSize = false;
             this.statusLabel.BorderStyle = BorderStyle.FixedSingle; // Een rand toevoegen voor zichtbaarheid
 
@@ -177,7 +177,7 @@ namespace Blackjack
             this.dealerHitButton.Click += new System.EventHandler(this.dealerHitButton_Click);
 
 
-            this.Controls.Add(this.shuffleButton);
+            //this.Controls.Add(this.shuffleButton);
             this.Controls.Add(this.drawButton);
             this.Controls.Add(this.dealerLabel);
             this.Controls.Add(this.cardLabel);
