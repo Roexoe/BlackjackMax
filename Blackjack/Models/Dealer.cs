@@ -53,8 +53,9 @@ namespace Blackjack.Models
             if (hiddenCard == null || visibleCards.Count != 1)
                 return false;
 
-            return CalculateHandValue() == 21;
+            return hiddenCard.Value + visibleCards[0].Value == 21;
         }
+
 
         // Controleert of de dealer potentieel blackjack kan hebben (10/face of Aas als zichtbare kaart)
         public bool MightHaveBlackjack()
@@ -62,9 +63,10 @@ namespace Blackjack.Models
             if (visibleCards.Count != 1)
                 return false;
 
-            // Als de zichtbare kaart een 10, J, Q, K (waarde 10) of een Aas is
-            return visibleCards[0].Value == 10 || visibleCards[0].Value == 11;
+            // Controleer of de zichtbare kaart een aas of een kaart met waarde 10 is
+            return visibleCards[0].Value == 10 || visibleCards[0].Rank == "A";
         }
+
 
         // Controleert of de verborgen kaart samen met de zichtbare kaart blackjack maakt
         public bool HiddenCardMakesBlackjack()
@@ -72,7 +74,9 @@ namespace Blackjack.Models
             if (hiddenCard == null || visibleCards.Count != 1)
                 return false;
 
-            return (hiddenCard.Value + visibleCards[0].Value) == 21;
+            // Controleer of de verborgen kaart samen met de zichtbare kaart blackjack maakt
+            return (hiddenCard.Value == 10 && visibleCards[0].Rank == "A") ||
+                   (hiddenCard.Rank == "A" && visibleCards[0].Value == 10);
         }
 
         // Berekent de waarde van de hand van de dealer

@@ -43,11 +43,15 @@ namespace Blackjack
 
         private void shuffleButton_Click(object sender, EventArgs e)
         {
-            // We kunnen de shuffle functionaliteit opnieuw implementeren voor de Shoe
-            // of we kunnen een nieuwe Shoe aanmaken met het ingestelde aantal decks
             int numberOfDecks = (int)decksNumericUpDown.Value;
             shoe = new Shoe(numberOfDecks);
             statusLabel.Text = $"Nieuwe shoe gemaakt met {numberOfDecks} deck(s)!";
+
+            // Reset de spelstroom
+            ResetGameControls();
+
+            // Schakel de shuffle-knop uit
+            shuffleButton.Enabled = false;
         }
 
         private void drawButton_Click(object sender, EventArgs e)
@@ -59,19 +63,35 @@ namespace Blackjack
             }
             catch (InvalidOperationException ex)
             {
+                // Toon de foutmelding
                 statusLabel.Text = ex.Message;
+
+                // Schakel de shuffle-knop weer in zodat de gebruiker een nieuwe shoe kan maken
+                shuffleButton.Enabled = true;
+
+                // Schakel andere knoppen uit om te voorkomen dat het spel doorgaat
+                drawButton.Enabled = false;
+                hitButton.Enabled = false;
+                standButton.Enabled = false;
             }
         }
 
+
         private void startGameButton_Click(object sender, EventArgs e)
         {
-            // Controleer of er geldig aantal spelers is
-            int numberOfPlayers = (int)playersNumericUpDown.Value;
-            int numberOfDecks = (int)decksNumericUpDown.Value;
-
-            if (numberOfPlayers > 0 && numberOfDecks > 0)
+            // Controleer of het deck nog voldoende kaarten heeft
+            if (shoe.RemainingPercentage <= 25)
             {
-                // Start het spel
+                MessageBox.Show("Het deck is onder de 25%. Voeg een nieuw deck toe voordat je een nieuw spel start.",
+                                "Deck bijna leeg", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Controleer of er een geldig aantal spelers is
+            int numberOfPlayers = (int)playersNumericUpDown.Value;
+
+            if (numberOfPlayers > 0)
+            {
                 gameStarted = true;
 
                 // Maak de spelers aan
@@ -81,24 +101,24 @@ namespace Blackjack
                     players.Add(new Player($"Speler {i}"));
                 }
 
-                // Maak een nieuwe shoe
-                shoe = new Shoe(numberOfDecks);
-
                 // Reset de dealer
-                dealer = new Dealer(shoe);
+                dealer.ResetHand();
 
                 // Reset de huidige stap
                 currentStep = DealingStep.DealerHidden;
                 currentPlayerIndex = 0;
 
                 // Update UI
-                statusLabel.Text = $"Spel gestart met {numberOfPlayers} spelers en {numberOfDecks} deck(s)! Klik op 'Deal Card' om met delen te beginnen.";
+                statusLabel.Text = $"Spel gestart met {numberOfPlayers} spelers! Klik op 'Deal Card' om met delen te beginnen.";
                 drawButton.Enabled = true;
                 startGameButton.Enabled = false;
                 playersNumericUpDown.Enabled = false;
                 decksNumericUpDown.Enabled = false;
                 hitButton.Enabled = false;
                 standButton.Enabled = false;
+
+                // Schakel de shuffle-knop uit
+                shuffleButton.Enabled = false;
 
                 // Toon instructie
                 cardLabel.Text = "Klik op 'Deal Card' om de verborgen kaart voor de dealer te delen.";
@@ -107,7 +127,7 @@ namespace Blackjack
             }
             else
             {
-                statusLabel.Text = "Stel een geldig aantal spelers en decks in (minimaal 1).";
+                statusLabel.Text = "Stel een geldig aantal spelers in (minimaal 1).";
             }
         }
 
@@ -182,6 +202,8 @@ namespace Blackjack
                     if (AskDealerApproval("Wilt u controleren op blackjack bij de dealer en spelers?"))
                     {
                         CheckForBlackjacks();
+                        currentStep = DealingStep.PlayersTurn; // Ga pas naar PlayersTurn na de check
+                        statusLabel.Text = "Blackjack-check voltooid. Spelers kunnen nu hun beurt spelen.";
                     }
                     break;
 
@@ -350,6 +372,17 @@ namespace Blackjack
             // Ga naar de volgende speler of naar de dealer als alle spelers klaar zijn
             currentPlayerIndex++;
 
+            // Zorg ervoor dat currentPlayerIndex niet buiten de grenzen gaat
+            if (currentPlayerIndex >= players.Count)
+            {
+                // Alle spelers zijn geweest, nu is het de beurt aan de dealer
+                currentStep = DealingStep.DealerTurn;
+                hitButton.Enabled = false;
+                standButton.Enabled = false;
+                DealerPlay();
+                return;
+            }
+
             // Zoek de volgende speler die nog geen blackjack heeft en niet staat
             while (currentPlayerIndex < players.Count && players[currentPlayerIndex].IsStanding)
             {
@@ -372,6 +405,69 @@ namespace Blackjack
 
             UpdateGameDisplay();
         }
+
+        private void splitButton_Click(object sender, EventArgs e)
+        {
+            // Controleer of de huidige beurt van de dealer is
+            if (currentStep == DealingStep.DealerTurn)
+            {
+                statusLabel.Text = "Dealer mag niet splitsen.";
+                return;
+            }
+
+            Player currentPlayer = players[currentPlayerIndex];
+
+            if (currentPlayer.CanSplit())
+            {
+                // Voeg de nieuwe hand toe aan de lijst van spelers
+                Player newHand = currentPlayer.Split(shoe);
+                players.Insert(currentPlayerIndex + 1, newHand);
+
+                statusLabel.Text = $"{currentPlayer.Name} heeft gesplit!";
+
+                // Update de UI
+                UpdateGameDisplay();
+            }
+            else
+            {
+                statusLabel.Text = "Splitten is niet mogelijk voor deze hand.";
+            }
+        }
+
+
+        private void doubleDownButton_Click(object sender, EventArgs e)
+        {
+            // Controleer of de huidige beurt van de dealer is
+            if (currentStep == DealingStep.DealerTurn)
+            {
+                statusLabel.Text = "Dealer mag geen Double Down uitvoeren.";
+                return;
+            }
+
+            // Controleer of currentPlayerIndex binnen de grenzen ligt
+            if (currentPlayerIndex < 0 || currentPlayerIndex >= players.Count)
+            {
+                statusLabel.Text = "Ongeldige spelerindex. Double Down kan niet worden uitgevoerd.";
+                return;
+            }
+
+            Player currentPlayer = players[currentPlayerIndex];
+
+            if (currentPlayer.CanDoubleDown())
+            {
+                currentPlayer.DoubleDown(shoe);
+                statusLabel.Text = $"{currentPlayer.Name} heeft Double Down uitgevoerd!";
+
+                // Automatisch Stand na Double Down
+                standButton_Click(sender, e);
+            }
+            else
+            {
+                statusLabel.Text = "Double Down is niet mogelijk voor deze hand.";
+            }
+        }
+
+
 
         // Dealer speelt zijn beurt
         private bool AskDealerForCard()
@@ -461,16 +557,27 @@ namespace Blackjack
 
             statusLabel.Text = results;
 
+            // Controleer of de shoe minder dan 25% kaarten bevat
+            if (shoe.RemainingPercentage <= 25)
+            {
+                MessageBox.Show("Het deck is onder de 25%. Voeg een nieuw deck toe om verder te spelen.",
+                                "Deck bijna leeg", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ResetGameControls();
+                return;
+            }
+
             // Spel is klaar, reset controls
             currentStep = DealingStep.EndGame;
             ResetGameControls();
         }
+
 
         // Update het scherm om huidige spelstatus te tonen
         private void UpdateGameDisplay()
         {
             // Voeg shoe informatie toe bovenaan
             string shoeInfo = $"Shoe: {shoe.RemainingCards} kaarten over, {shoe.RemainingDecks} deck(s) over ({shoe.RemainingPercentage:F1}%)";
+
 
             // Update dealer informatie
             string dealerInfo = "Dealer: ";
@@ -535,6 +642,23 @@ namespace Blackjack
             {
                 statusLabel.Text = $"{statusLabel.Text} | {shoeInfo}";
             }
+
+            // Update Split en Double Down knoppen
+            if (currentStep == DealingStep.PlayersTurn && currentPlayerIndex >= 0 && currentPlayerIndex < players.Count)
+            {
+                Player currentPlayer = players[currentPlayerIndex];
+                splitButton.Enabled = currentPlayer.CanSplit();
+                doubleDownButton.Enabled = currentPlayer.CanDoubleDown();
+                hitButton.Enabled = true;
+                standButton.Enabled = true;
+            }
+            else
+            {
+                splitButton.Enabled = false;
+                doubleDownButton.Enabled = false;
+                hitButton.Enabled = false;
+                standButton.Enabled = false;
+            }
         }
 
         // Reset de controls voor een nieuw spel
@@ -546,6 +670,9 @@ namespace Blackjack
             drawButton.Enabled = false;
             hitButton.Enabled = false;
             standButton.Enabled = false;
+
+            statusLabel.Text = "Klik op 'Start Game' om een nieuw spel te beginnen.";
         }
+
     }
 }

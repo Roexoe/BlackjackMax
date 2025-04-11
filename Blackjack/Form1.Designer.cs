@@ -23,6 +23,8 @@ namespace Blackjack
         private NumericUpDown decksNumericUpDown;
         private Label decksLabel;
         private Button dealerHitButton;
+        private Button splitButton;
+        private Button doubleDownButton;
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -47,22 +49,22 @@ namespace Blackjack
         {
             this.components = new Container();
             this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 600);
+            this.ClientSize = new System.Drawing.Size(1000, 800);
             this.Text = "Blackjack Game";
 
             this.shuffleButton = new Button();
             this.drawButton = new Button();
             this.cardLabel = new Label();
 
-            // 
+            
             // shuffleButton
             // 
-            //this.shuffleButton.Location = new System.Drawing.Point(50, 50);
-            //this.shuffleButton.Name = "shuffleButton";
-            //this.shuffleButton.Size = new System.Drawing.Size(100, 30);
-            //this.shuffleButton.Text = "Shuffle";
-            //this.shuffleButton.UseVisualStyleBackColor = true;
-            //this.shuffleButton.Click += new System.EventHandler(this.shuffleButton_Click);
+            this.shuffleButton.Location = new System.Drawing.Point(50, 50);
+            this.shuffleButton.Name = "shuffleButton";
+            this.shuffleButton.Size = new System.Drawing.Size(100, 30);
+            this.shuffleButton.Text = "Shuffle";
+            this.shuffleButton.UseVisualStyleBackColor = true;
+            this.shuffleButton.Click += new System.EventHandler(this.shuffleButton_Click);
 
             // 
             // drawButton
@@ -175,9 +177,29 @@ namespace Blackjack
             this.dealerHitButton.UseVisualStyleBackColor = true;
             this.dealerHitButton.Enabled = false;
             this.dealerHitButton.Click += new System.EventHandler(this.dealerHitButton_Click);
+            // Split button
+            this.splitButton = new Button();
+            this.splitButton.Location = new System.Drawing.Point(650, 50);
+            this.splitButton.Name = "splitButton";
+            this.splitButton.Size = new System.Drawing.Size(100, 30);
+            this.splitButton.Text = "Split";
+            this.splitButton.UseVisualStyleBackColor = true;
+            this.splitButton.Enabled = false; // Disabled by default
+            this.splitButton.Click += new System.EventHandler(this.splitButton_Click);
+
+            // Double Down button
+            this.doubleDownButton = new Button();
+            this.doubleDownButton.Location = new System.Drawing.Point(770, 50);
+            this.doubleDownButton.Name = "doubleDownButton";
+            this.doubleDownButton.Size = new System.Drawing.Size(100, 30);
+            this.doubleDownButton.Text = "Double Down";
+            this.doubleDownButton.UseVisualStyleBackColor = true;
+            this.doubleDownButton.Enabled = false; // Disabled by default
+            this.doubleDownButton.Click += new System.EventHandler(this.doubleDownButton_Click);
 
 
-            //this.Controls.Add(this.shuffleButton);
+
+            this.Controls.Add(this.shuffleButton);
             this.Controls.Add(this.drawButton);
             this.Controls.Add(this.dealerLabel);
             this.Controls.Add(this.cardLabel);
@@ -191,6 +213,8 @@ namespace Blackjack
             this.Controls.Add(this.dealerHitButton);
             this.Controls.Add(this.decksNumericUpDown);
             this.Controls.Add(this.decksLabel);
+            this.Controls.Add(this.splitButton);
+            this.Controls.Add(this.doubleDownButton);
         }
 
         #endregion
