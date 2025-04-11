@@ -520,6 +520,7 @@ namespace Blackjack
         }
 
         // Bepaal de resultaten van het spel
+        // Bepaal de resultaten van het spel
         private void DetermineResults()
         {
             int dealerValue = dealer.CalculateHandValue();
@@ -558,26 +559,26 @@ namespace Blackjack
             statusLabel.Text = results;
 
             // Controleer of de shoe minder dan 25% kaarten bevat
-            if (shoe.RemainingPercentage <= 25)
+            if (shoe.IsLastDeckLowOnCards)
             {
-                MessageBox.Show("Het deck is onder de 25%. Voeg een nieuw deck toe om verder te spelen.",
-                                "Deck bijna leeg", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                ResetGameControls();
-                return;
+                shuffleButton.Enabled = true;
+                string warning = "Het laatste deck heeft minder dan 25% kaarten over. Voeg een nieuwe shoe toe.";
+                statusLabel.Text += $" | {warning}";
             }
 
-            // Spel is klaar, reset controls
+            // Spel is klaar, reset controls maar behoud het resultaat
             currentStep = DealingStep.EndGame;
-            ResetGameControls();
+            ResetGameControls(false); // Gebruik de parameter 'false' om aan te geven dat de statustext niet moet worden bijgewerkt
         }
 
 
         // Update het scherm om huidige spelstatus te tonen
         private void UpdateGameDisplay()
         {
-            // Voeg shoe informatie toe bovenaan
-            string shoeInfo = $"Shoe: {shoe.RemainingCards} kaarten over, {shoe.RemainingDecks} deck(s) over ({shoe.RemainingPercentage:F1}%)";
-
+            // Voeg informatie over shoe en het huidige deck toe bovenaan
+            string shoeInfo = $"Shoe: {shoe.RemainingCards} kaarten over, {shoe.RemainingDecks} deck(s) over";
+            string deckInfo = $"Huidig deck: {shoe.CurrentDeckRemainingPercentage:F1}% over";
+            string displayInfo = $"{shoeInfo} | {deckInfo}";
 
             // Update dealer informatie
             string dealerInfo = "Dealer: ";
@@ -635,12 +636,19 @@ namespace Blackjack
             cardLabel.Text = playerCardsInfo;
 
             // Update spelers label
-            playersInfoLabel.Text = $"Spelers ({players.Count}): {shoeInfo}";
+            playersInfoLabel.Text = $"Spelers ({players.Count}): {displayInfo}";
 
-            // Alternatief: voeg shoe informatie toe aan bestaande statusLabel tekst
-            if (!statusLabel.Text.Contains("Shoe:"))
+            // Controleer of het laatste deck minder dan 25% kaarten heeft
+            if (shoe.IsLastDeckLowOnCards)
             {
-                statusLabel.Text = $"{statusLabel.Text} | {shoeInfo}";
+                shuffleButton.Enabled = true;
+                statusLabel.Text += " | Het laatste deck heeft minder dan 25% kaarten over. Voeg een nieuwe shoe toe.";
+            }
+
+            // Alternatief: voeg shoe informatie toe aan bestaande statusLabel tekst als die er nog niet is
+            if (!statusLabel.Text.Contains("Shoe:") && !statusLabel.Text.Contains("Huidig deck:"))
+            {
+                statusLabel.Text = $"{statusLabel.Text} | {displayInfo}";
             }
 
             // Update Split en Double Down knoppen
@@ -662,7 +670,7 @@ namespace Blackjack
         }
 
         // Reset de controls voor een nieuw spel
-        private void ResetGameControls()
+        private void ResetGameControls(bool updateStatusText = true)
         {
             startGameButton.Enabled = true;
             playersNumericUpDown.Enabled = true;
@@ -671,7 +679,11 @@ namespace Blackjack
             hitButton.Enabled = false;
             standButton.Enabled = false;
 
-            statusLabel.Text = "Klik op 'Start Game' om een nieuw spel te beginnen.";
+            // Update de statustext alleen als dat nodig is
+            if (updateStatusText)
+            {
+                statusLabel.Text = "Klik op 'Start Game' om een nieuw spel te beginnen.";
+            }
         }
 
     }
