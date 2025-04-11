@@ -41,17 +41,18 @@ namespace Blackjack.Models
 
         public Card DealCard()
         {
-            // Check of we een nieuw deck nodig hebben
+            // Controleer of het huidige deck leeg is
             if (currentDeck.RemainingCards == 0)
             {
                 if (decks.Count > 0)
                 {
+                    // Laad een nieuw deck
                     currentDeck = decks[0];
                     decks.RemoveAt(0);
                 }
                 else
                 {
-                    throw new InvalidOperationException("Geen decks meer in de shoe.");
+                    throw new InvalidOperationException("Geen kaarten meer in de shoe.");
                 }
             }
 
@@ -62,9 +63,13 @@ namespace Blackjack.Models
                                "Deck bijna leeg", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
+            // Deel een kaart uit het huidige deck
+            Card dealtCard = currentDeck.DealCard();
             totalCards--;
-            return currentDeck.DealCard();
+
+            return dealtCard;
         }
+
 
         public string GetStatus()
         {

@@ -32,6 +32,44 @@ namespace Blackjack.Models
             AddCard(card);
             return card;
         }
+        public bool CanSplit()
+        {
+            return Cards.Count == 2 && Cards[0].Rank == Cards[1].Rank;
+        }
+
+        public Player Split(Shoe shoe)
+        {
+            if (!CanSplit())
+                throw new InvalidOperationException("Splitten is niet mogelijk.");
+
+            // Maak een nieuwe hand met de tweede kaart
+            Card secondCard = Cards[1];
+            Cards.RemoveAt(1);
+
+            Player newHand = new Player($"{Name} (Split)");
+            newHand.AddCard(secondCard);
+
+            // Voeg een nieuwe kaart toe aan beide handen
+            AddCard(shoe.DealCard());
+            newHand.AddCard(shoe.DealCard());
+
+            return newHand;
+        }
+
+
+
+        public bool CanDoubleDown()
+        {
+            return Cards.Count == 2; // Double Down is alleen toegestaan bij de eerste twee kaarten
+        }
+        public void DoubleDown(Shoe shoe)
+        {
+            // Voeg één kaart toe
+            AddCard(shoe.DealCard());
+            // Speler moet automatisch stoppen na Double Down
+            IsStanding = true;
+        }
+
 
         public void AddCard(Card card)
         {
