@@ -11,11 +11,18 @@ namespace Blackjack.Models
         private Deck currentDeck;
         private int totalCards;
         private int initialTotalCards;
+        public double CurrentDeckRemainingPercentage => currentDeck.RemainingPercentage;
 
         public int TotalDecks { get; }
         public int RemainingDecks => decks.Count + (currentDeck.RemainingCards > 0 ? 1 : 0);
         public int RemainingCards => currentDeck.RemainingCards + decks.Count * 52;
         public double RemainingPercentage => (double)RemainingCards / initialTotalCards * 100;
+
+        // Voeg een eigenschap toe om te controleren of het laatste deck wordt gebruikt
+        public bool IsLastDeck => decks.Count == 0;
+
+        // Voeg een eigenschap toe om te controleren of het laatste deck minder dan 25% kaarten heeft
+        public bool IsLastDeckLowOnCards => IsLastDeck && currentDeck.IsLowOnCards();
 
         public Shoe(int numberOfDecks)
         {
@@ -41,35 +48,35 @@ namespace Blackjack.Models
 
         public Card DealCard()
         {
-            // Controleer of het huidige deck leeg is
-            if (currentDeck.RemainingCards == 0)
+            // Check if the current deck is low on cards (25% or less cards remaining)
+            if (currentDeck.IsLowOnCards())
             {
                 if (decks.Count > 0)
                 {
-                    // Laad een nieuw deck
+                    // If we have more decks available, switch to a new deck
+                    Console.WriteLine($"Deck at {currentDeck.RemainingPercentage:F1}% - switching to a new deck");
                     currentDeck = decks[0];
                     decks.RemoveAt(0);
                 }
                 else
                 {
-                    throw new InvalidOperationException("Geen kaarten meer in de shoe.");
+                    // Als het het laatste deck is en het heeft minder dan 25% kaarten,
+                    // dan blijven we het gebruiken maar de UI moet de waarschuwing tonen
+                    if (currentDeck.RemainingCards == 0)
+                    {
+                        throw new InvalidOperationException("Geen kaarten meer in de shoe.");
+                    }
+
+                    // We geven geen waarschuwing hier, omdat we dat in de UI willen doen
                 }
             }
 
-            // Check of het huidige deck bijna leeg is (25% of minder)
-            if (currentDeck.IsLowOnCards() && decks.Count > 0)
-            {
-                MessageBox.Show($"Waarschuwing: Nog maar {currentDeck.RemainingPercentage:F1}% van het huidige deck over!",
-                               "Deck bijna leeg", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-
-            // Deel een kaart uit het huidige deck
+            // Deal a card from the current deck
             Card dealtCard = currentDeck.DealCard();
             totalCards--;
 
             return dealtCard;
         }
-
 
         public string GetStatus()
         {
