@@ -47,174 +47,209 @@ namespace Blackjack
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new Container();
-            this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1000, 800);
-            this.Text = "Blackjack Game";
-
-            this.shuffleButton = new Button();
-            this.drawButton = new Button();
-            this.cardLabel = new Label();
-
-            
+            shuffleButton = new Button();
+            drawButton = new Button();
+            cardLabel = new Label();
+            dealerLabel = new Label();
+            playersInfoLabel = new Label();
+            playersNumericUpDown = new NumericUpDown();
+            decksNumericUpDown = new NumericUpDown();
+            decksLabel = new Label();
+            playersLabel = new Label();
+            startGameButton = new Button();
+            statusLabel = new Label();
+            hitButton = new Button();
+            standButton = new Button();
+            dealerHitButton = new Button();
+            splitButton = new Button();
+            doubleDownButton = new Button();
+            ((ISupportInitialize)playersNumericUpDown).BeginInit();
+            ((ISupportInitialize)decksNumericUpDown).BeginInit();
+            SuspendLayout();
+            // 
             // shuffleButton
             // 
-            this.shuffleButton.Location = new System.Drawing.Point(50, 50);
-            this.shuffleButton.Name = "shuffleButton";
-            this.shuffleButton.Size = new System.Drawing.Size(100, 30);
-            this.shuffleButton.Text = "Shuffle";
-            this.shuffleButton.UseVisualStyleBackColor = true;
-            this.shuffleButton.Click += new System.EventHandler(this.shuffleButton_Click);
-
+            shuffleButton.Location = new Point(50, 50);
+            shuffleButton.Name = "shuffleButton";
+            shuffleButton.Size = new Size(100, 30);
+            shuffleButton.TabIndex = 0;
+            shuffleButton.Text = "Shuffle";
+            shuffleButton.UseVisualStyleBackColor = true;
+            shuffleButton.Click += shuffleButton_Click;
             // 
             // drawButton
             // 
-            this.drawButton.Location = new System.Drawing.Point(170, 50);
-            this.drawButton.Name = "drawButton";
-            this.drawButton.Size = new System.Drawing.Size(100, 30);
-            this.drawButton.Text = "Deal Card";
-            this.drawButton.UseVisualStyleBackColor = true;
-            this.drawButton.Click += new System.EventHandler(this.drawButton_Click);
-
-            // Dealer label
-            this.dealerLabel = new Label();
-            this.dealerLabel.Location = new System.Drawing.Point(50, 100);
-            this.dealerLabel.Name = "dealerLabel";
-            this.dealerLabel.Size = new System.Drawing.Size(700, 30);
-            this.dealerLabel.Text = "Dealer:";
-            this.dealerLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-
+            drawButton.Location = new Point(170, 50);
+            drawButton.Name = "drawButton";
+            drawButton.Size = new Size(100, 30);
+            drawButton.TabIndex = 1;
+            drawButton.Text = "Deal Card";
+            drawButton.UseVisualStyleBackColor = true;
+            drawButton.Click += drawButton_Click;
             // 
-            // cardLabel - Vergroten om meer kaartinformatie weer te geven
+            // cardLabel
             // 
-            this.cardLabel.Location = new System.Drawing.Point(50, 140);
-            this.cardLabel.Name = "cardLabel";
-            this.cardLabel.Size = new System.Drawing.Size(700, 150); // Veel groter maken
-            this.cardLabel.Text = "Kaarten:";
-            this.cardLabel.AutoSize = false;
-
-            // Players info label
-            this.playersInfoLabel = new Label();
-            this.playersInfoLabel.Location = new System.Drawing.Point(50, 300);
-            this.playersInfoLabel.Name = "playersInfoLabel";
-            this.playersInfoLabel.Size = new System.Drawing.Size(700, 30);
-            this.playersInfoLabel.Text = "Spelers:";
-            this.playersInfoLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-
-            // Knop om aantal spelers in te stellen
-            this.playersNumericUpDown = new NumericUpDown();
-            this.playersNumericUpDown.Location = new System.Drawing.Point(50, 350);
-            this.playersNumericUpDown.Name = "playersNumericUpDown";
-            this.playersNumericUpDown.Size = new System.Drawing.Size(100, 30);
-            this.playersNumericUpDown.Minimum = 1;
-            this.playersNumericUpDown.Maximum = 4;
-            this.playersNumericUpDown.Value = 1;
-
-
-            this.decksNumericUpDown = new NumericUpDown();
-            this.decksNumericUpDown.Location = new System.Drawing.Point(370, 350);
-            this.decksNumericUpDown.Name = "decksNumericUpDown";
-            this.decksNumericUpDown.Size = new System.Drawing.Size(100, 30);
-            this.decksNumericUpDown.Minimum = 1;
-            this.decksNumericUpDown.Maximum = 8;
-            this.decksNumericUpDown.Value = 1;
-
-            this.decksLabel = new Label();
-            this.decksLabel.Location = new System.Drawing.Point(480, 350);
-            this.decksLabel.Name = "decksLabel";
-            this.decksLabel.Size = new System.Drawing.Size(200, 30);
-            this.decksLabel.Text = "Aantal decks in shoe:";
-
-            // Label voor instructie
-            this.playersLabel = new Label();
-            this.playersLabel.Location = new System.Drawing.Point(160, 350);
-            this.playersLabel.Name = "playersLabel";
-            this.playersLabel.Size = new System.Drawing.Size(200, 30);
-            this.playersLabel.Text = "Stel aantal spelers in:";
-
-            // Dealer start knop
-            this.startGameButton = new Button();
-            this.startGameButton.Location = new System.Drawing.Point(50, 400);
-            this.startGameButton.Name = "startGameButton";
-            this.startGameButton.Size = new System.Drawing.Size(150, 30);
-            this.startGameButton.Text = "Start Spel (Dealer)";
-            this.startGameButton.UseVisualStyleBackColor = true;
-            this.startGameButton.Click += new System.EventHandler(this.startGameButton_Click);
-
-            // Status label - Verplaatst naar onderaan en groter gemaakt
-            this.statusLabel = new Label();
-            this.statusLabel.Location = new System.Drawing.Point(50, 450);
-            this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(700, 60); // Groter maken voor meer informatie
-            this.statusLabel.Text = "Stel het aantal spelers en de hoeveelheid decks in de shoe in en laat de dealer het spel starten.";
-            this.statusLabel.AutoSize = false;
-            this.statusLabel.BorderStyle = BorderStyle.FixedSingle; // Een rand toevoegen voor zichtbaarheid
-
-            // Hit button
-            this.hitButton = new Button();
-            this.hitButton.Location = new System.Drawing.Point(290, 50);
-            this.hitButton.Name = "hitButton";
-            this.hitButton.Size = new System.Drawing.Size(100, 30);
-            this.hitButton.Text = "Hit";
-            this.hitButton.UseVisualStyleBackColor = true;
-            this.hitButton.Enabled = false;
-            this.hitButton.Click += new System.EventHandler(this.hitButton_Click);
-            // Stand button
-            this.standButton = new Button();
-            this.standButton.Location = new System.Drawing.Point(410, 50);
-            this.standButton.Name = "Standbutton";
-            this.standButton.Size = new System.Drawing.Size(100, 30);
-            this.standButton.Text = "Stand";
-            this.standButton.UseVisualStyleBackColor = true;
-            this.standButton.Enabled = false;
-            this.standButton.Click += new System.EventHandler(this.standButton_Click);
-            // Dealer hit button
-            this.dealerHitButton = new Button();
-            this.dealerHitButton.Location = new System.Drawing.Point(530, 50);
-            this.dealerHitButton.Name = "dealerHitButton";
-            this.dealerHitButton.Size = new System.Drawing.Size(100, 30);
-            this.dealerHitButton.Text = "Hit (Dealer)";
-            this.dealerHitButton.UseVisualStyleBackColor = true;
-            this.dealerHitButton.Enabled = false;
-            this.dealerHitButton.Click += new System.EventHandler(this.dealerHitButton_Click);
-            // Split button
-            this.splitButton = new Button();
-            this.splitButton.Location = new System.Drawing.Point(650, 50);
-            this.splitButton.Name = "splitButton";
-            this.splitButton.Size = new System.Drawing.Size(100, 30);
-            this.splitButton.Text = "Split";
-            this.splitButton.UseVisualStyleBackColor = true;
-            this.splitButton.Enabled = false; // Disabled by default
-            this.splitButton.Click += new System.EventHandler(this.splitButton_Click);
-
-            // Double Down button
-            this.doubleDownButton = new Button();
-            this.doubleDownButton.Location = new System.Drawing.Point(770, 50);
-            this.doubleDownButton.Name = "doubleDownButton";
-            this.doubleDownButton.Size = new System.Drawing.Size(100, 30);
-            this.doubleDownButton.Text = "Double Down";
-            this.doubleDownButton.UseVisualStyleBackColor = true;
-            this.doubleDownButton.Enabled = false; // Disabled by default
-            this.doubleDownButton.Click += new System.EventHandler(this.doubleDownButton_Click);
-
-
-
-            this.Controls.Add(this.shuffleButton);
-            this.Controls.Add(this.drawButton);
-            this.Controls.Add(this.dealerLabel);
-            this.Controls.Add(this.cardLabel);
-            this.Controls.Add(this.playersInfoLabel);
-            this.Controls.Add(this.playersNumericUpDown);
-            this.Controls.Add(this.playersLabel);
-            this.Controls.Add(this.startGameButton);
-            this.Controls.Add(this.statusLabel);
-            this.Controls.Add(this.hitButton);
-            this.Controls.Add(this.standButton);
-            this.Controls.Add(this.dealerHitButton);
-            this.Controls.Add(this.decksNumericUpDown);
-            this.Controls.Add(this.decksLabel);
-            this.Controls.Add(this.splitButton);
-            this.Controls.Add(this.doubleDownButton);
+            cardLabel.Location = new Point(50, 140);
+            cardLabel.Name = "cardLabel";
+            cardLabel.Size = new Size(700, 150);
+            cardLabel.TabIndex = 3;
+            cardLabel.Text = "Kaarten:";
+            // 
+            // dealerLabel
+            // 
+            dealerLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            dealerLabel.Location = new Point(50, 100);
+            dealerLabel.Name = "dealerLabel";
+            dealerLabel.Size = new Size(700, 30);
+            dealerLabel.TabIndex = 2;
+            dealerLabel.Text = "Dealer:";
+            // 
+            // playersInfoLabel
+            // 
+            playersInfoLabel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            playersInfoLabel.Location = new Point(50, 300);
+            playersInfoLabel.Name = "playersInfoLabel";
+            playersInfoLabel.Size = new Size(700, 30);
+            playersInfoLabel.TabIndex = 4;
+            playersInfoLabel.Text = "Spelers:";
+            // 
+            // playersNumericUpDown
+            // 
+            playersNumericUpDown.Location = new Point(50, 350);
+            playersNumericUpDown.Maximum = new decimal(new int[] { 4, 0, 0, 0 });
+            playersNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            playersNumericUpDown.Name = "playersNumericUpDown";
+            playersNumericUpDown.Size = new Size(100, 23);
+            playersNumericUpDown.TabIndex = 5;
+            playersNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // decksNumericUpDown
+            // 
+            decksNumericUpDown.Location = new Point(370, 350);
+            decksNumericUpDown.Maximum = new decimal(new int[] { 8, 0, 0, 0 });
+            decksNumericUpDown.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            decksNumericUpDown.Name = "decksNumericUpDown";
+            decksNumericUpDown.Size = new Size(100, 23);
+            decksNumericUpDown.TabIndex = 12;
+            decksNumericUpDown.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // decksLabel
+            // 
+            decksLabel.Location = new Point(480, 350);
+            decksLabel.Name = "decksLabel";
+            decksLabel.Size = new Size(200, 30);
+            decksLabel.TabIndex = 13;
+            decksLabel.Text = "Aantal decks in shoe:";
+            // 
+            // playersLabel
+            // 
+            playersLabel.Location = new Point(160, 350);
+            playersLabel.Name = "playersLabel";
+            playersLabel.Size = new Size(200, 30);
+            playersLabel.TabIndex = 6;
+            playersLabel.Text = "Stel aantal spelers in:";
+            // 
+            // startGameButton
+            // 
+            startGameButton.Location = new Point(50, 400);
+            startGameButton.Name = "startGameButton";
+            startGameButton.Size = new Size(150, 30);
+            startGameButton.TabIndex = 7;
+            startGameButton.Text = "Start Spel (Dealer)";
+            startGameButton.UseVisualStyleBackColor = true;
+            startGameButton.Click += startGameButton_Click;
+            // 
+            // statusLabel
+            // 
+            statusLabel.BorderStyle = BorderStyle.FixedSingle;
+            statusLabel.Location = new Point(50, 450);
+            statusLabel.Name = "statusLabel";
+            statusLabel.Size = new Size(700, 60);
+            statusLabel.TabIndex = 8;
+            statusLabel.Text = "Stel het aantal spelers en de hoeveelheid decks in de shoe in en laat de dealer het spel starten. Klik op shuffle om het aantal decks in de shoe te bevestigen";
+            statusLabel.Click += statusLabel_Click;
+            // 
+            // hitButton
+            // 
+            hitButton.Enabled = false;
+            hitButton.Location = new Point(290, 50);
+            hitButton.Name = "hitButton";
+            hitButton.Size = new Size(100, 30);
+            hitButton.TabIndex = 9;
+            hitButton.Text = "Hit";
+            hitButton.UseVisualStyleBackColor = true;
+            hitButton.Click += hitButton_Click;
+            // 
+            // standButton
+            // 
+            standButton.Enabled = false;
+            standButton.Location = new Point(410, 50);
+            standButton.Name = "standButton";
+            standButton.Size = new Size(100, 30);
+            standButton.TabIndex = 10;
+            standButton.Text = "Stand";
+            standButton.UseVisualStyleBackColor = true;
+            standButton.Click += standButton_Click;
+            // 
+            // dealerHitButton
+            // 
+            dealerHitButton.Enabled = false;
+            dealerHitButton.Location = new Point(530, 50);
+            dealerHitButton.Name = "dealerHitButton";
+            dealerHitButton.Size = new Size(100, 30);
+            dealerHitButton.TabIndex = 11;
+            dealerHitButton.Text = "Hit (Dealer)";
+            dealerHitButton.UseVisualStyleBackColor = true;
+            dealerHitButton.Click += dealerHitButton_Click;
+            // 
+            // splitButton
+            // 
+            splitButton.Enabled = false;
+            splitButton.Location = new Point(650, 50);
+            splitButton.Name = "splitButton";
+            splitButton.Size = new Size(100, 30);
+            splitButton.TabIndex = 14;
+            splitButton.Text = "Split";
+            splitButton.UseVisualStyleBackColor = true;
+            splitButton.Click += splitButton_Click;
+            // 
+            // doubleDownButton
+            // 
+            doubleDownButton.Enabled = false;
+            doubleDownButton.Location = new Point(770, 50);
+            doubleDownButton.Name = "doubleDownButton";
+            doubleDownButton.Size = new Size(100, 30);
+            doubleDownButton.TabIndex = 15;
+            doubleDownButton.Text = "Double Down";
+            doubleDownButton.UseVisualStyleBackColor = true;
+            doubleDownButton.Click += doubleDownButton_Click;
+            // 
+            // Form1
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1000, 800);
+            Controls.Add(shuffleButton);
+            Controls.Add(drawButton);
+            Controls.Add(dealerLabel);
+            Controls.Add(cardLabel);
+            Controls.Add(playersInfoLabel);
+            Controls.Add(playersNumericUpDown);
+            Controls.Add(playersLabel);
+            Controls.Add(startGameButton);
+            Controls.Add(statusLabel);
+            Controls.Add(hitButton);
+            Controls.Add(standButton);
+            Controls.Add(dealerHitButton);
+            Controls.Add(decksNumericUpDown);
+            Controls.Add(decksLabel);
+            Controls.Add(splitButton);
+            Controls.Add(doubleDownButton);
+            Name = "Form1";
+            Text = "Blackjack Game";
+            ((ISupportInitialize)playersNumericUpDown).EndInit();
+            ((ISupportInitialize)decksNumericUpDown).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion
