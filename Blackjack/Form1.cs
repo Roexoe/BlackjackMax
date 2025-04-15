@@ -7,7 +7,7 @@ namespace Blackjack
 {
     public partial class Form1 : Form
     {
-        private Shoe shoe; 
+        private Shoe shoe;
         private Dealer dealer;
         private List<Player> players;
         private bool gameStarted = false;
@@ -686,5 +686,9 @@ namespace Blackjack
             }
         }
 
+        private void statusLabel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
