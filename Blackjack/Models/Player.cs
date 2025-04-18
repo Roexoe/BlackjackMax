@@ -4,7 +4,7 @@ namespace Blackjack.Models
 {
     public class Player
     {
-        public string Name { get; }
+        public string Name { get; set; } // Changed to settable
         public List<Card> Cards { get; }
         public bool IsBusted => CalculateHandValue() > 21;
         public bool IsStanding { get; private set; }
@@ -14,6 +14,13 @@ namespace Blackjack.Models
             Name = name;
             Cards = new List<Card>();
         }
+
+        // Add a method to update the player's name
+        public void UpdateName(string newName)
+        {
+            Name = newName;
+        }
+
 
         public void Reset()
         {

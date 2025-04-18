@@ -25,6 +25,9 @@ namespace Blackjack
         private Button dealerHitButton;
         private Button splitButton;
         private Button doubleDownButton;
+        //private Button addPlayerButton;
+        //private Button removePlayerButton;
+
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -63,6 +66,9 @@ namespace Blackjack
             dealerHitButton = new Button();
             splitButton = new Button();
             doubleDownButton = new Button();
+            //addPlayerButton = new Button();
+            //removePlayerButton = new Button();
+
             ((ISupportInitialize)playersNumericUpDown).BeginInit();
             ((ISupportInitialize)decksNumericUpDown).BeginInit();
             SuspendLayout();
@@ -223,6 +229,32 @@ namespace Blackjack
             doubleDownButton.Text = "Double Down";
             doubleDownButton.UseVisualStyleBackColor = true;
             doubleDownButton.Click += doubleDownButton_Click;
+
+            // 
+            // addPlayerButton
+            // 
+            //addPlayerButton.Location = new Point(50, 550); // Pas de locatie aan (X=50, Y=550)
+            //addPlayerButton.Size = new Size(200, 40); // Pas de grootte aan (Breedte=200, Hoogte=40)
+            //addPlayerButton.Name = "addPlayerButton";
+            //addPlayerButton.TabIndex = 16;
+            //addPlayerButton.Text = "Voeg Speler Toe";
+            //addPlayerButton.UseVisualStyleBackColor = true;
+            //addPlayerButton.Click += addPlayerButton_Click;
+
+            //
+            // removePlayerButton
+            //
+            //removePlayerButton = new Button();
+            //removePlayerButton.Location = new Point(270, 550);
+            //removePlayerButton.Size = new Size(200, 40);
+            //removePlayerButton.Name = "removePlayerButton";
+            //removePlayerButton.TabIndex = 17;
+            //removePlayerButton.Text = "Verwijder Speler";
+            //removePlayerButton.UseVisualStyleBackColor = true;
+            //removePlayerButton.Click += removePlayerButton_Click;
+           
+
+
             // 
             // Form1
             // 
@@ -245,6 +277,9 @@ namespace Blackjack
             Controls.Add(decksLabel);
             Controls.Add(splitButton);
             Controls.Add(doubleDownButton);
+            //Controls.Add(addPlayerButton);
+            //Controls.Add(removePlayerButton);
+
             Name = "Form1";
             Text = "Blackjack Game";
             ((ISupportInitialize)playersNumericUpDown).EndInit();
