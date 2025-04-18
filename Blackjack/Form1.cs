@@ -92,13 +92,22 @@ namespace Blackjack
 
             if (numberOfPlayers > 0)
             {
-                gameStarted = true;
-
-                // Maak de spelers aan
-                players.Clear();
-                for (int i = 1; i <= numberOfPlayers; i++)
+                // Controleer of er al spelersnamen zijn opgeslagen
+                if (playerNames.Count == 0)
                 {
-                    players.Add(new Player($"Speler {i}"));
+                    // Vraag om nieuwe spelersnamen
+                    for (int i = 1; i <= numberOfPlayers; i++)
+                    {
+                        string playerName = PromptForPlayerName($"Speler {i}");
+                        playerNames.Add(playerName);
+                    }
+                }
+
+                // Maak de spelers aan op basis van de opgeslagen namen
+                players.Clear();
+                foreach (var name in playerNames)
+                {
+                    players.Add(new Player(name));
                 }
 
                 // Reset de dealer
@@ -130,6 +139,7 @@ namespace Blackjack
                 statusLabel.Text = "Stel een geldig aantal spelers in (minimaal 1).";
             }
         }
+
 
 
         private void dealerHitButton_Click(object sender, EventArgs e)
@@ -466,8 +476,55 @@ namespace Blackjack
                 statusLabel.Text = "Double Down is niet mogelijk voor deze hand.";
             }
         }
+        // Voor het toevoegen van een speler
+        private void addPlayerButton_Click(object sender, EventArgs e)
+        {
+            if (gameStarted)
+            {
+                MessageBox.Show("Je kunt geen nieuwe spelers toevoegen tijdens een spel.", "Fout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
+            string playerName = PromptForPlayerName();
+            if (!string.IsNullOrWhiteSpace(playerName))
+            {
+                players.Add(new Player(playerName));
+                statusLabel.Text = $"Speler '{playerName}' toegevoegd!";
+                UpdateGameDisplay();
+            }
+            else
+            {
+                MessageBox.Show("Naam van de speler mag niet leeg zijn.", "Ongeldige invoer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
 
+        private List<string> playerNames = new List<string>();
+
+        // Voor het verwijderen van een speler
+        private void removePlayerButton_Click(object sender, EventArgs e)
+        {
+            if (playerNames.Count == 0)
+            {
+                MessageBox.Show("Er zijn geen spelers om te verwijderen.", "Fout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using (var inputDialog = new InputBox("Voer de naam in van de speler die je wilt verwijderen:", "Verwijder Speler"))
+            {
+                if (inputDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string nameToRemove = inputDialog.InputText;
+                    if (playerNames.Remove(nameToRemove))
+                    {
+                        MessageBox.Show($"Speler '{nameToRemove}' is verwijderd.", "Succes", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Speler '{nameToRemove}' is niet gevonden.", "Fout", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+        }
 
         // Dealer speelt zijn beurt
         private bool AskDealerForCard()
@@ -684,6 +741,17 @@ namespace Blackjack
             {
                 statusLabel.Text = "Klik op 'Start Game' om een nieuw spel te beginnen.";
             }
+        }
+        private string PromptForPlayerName(string defaultName = "Speler")
+        {
+            using (var inputDialog = new InputBox($"Voer de naam in voor {defaultName}:", "Speler Naam"))
+            {
+                if (inputDialog.ShowDialog() == DialogResult.OK)
+                {
+                    return inputDialog.InputText;
+                }
+            }
+            return defaultName;
         }
 
         private void statusLabel_Click(object sender, EventArgs e)
