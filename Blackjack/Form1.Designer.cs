@@ -8,6 +8,7 @@ namespace Blackjack
         /// <summary>
         ///  Required designer variable.
         /// </summary>
+        private System.Windows.Forms.Label scoreLabel;
         private IContainer components = null;
         private Button shuffleButton;
         private Button drawButton;
@@ -25,6 +26,8 @@ namespace Blackjack
         private Button dealerHitButton;
         private Button splitButton;
         private Button doubleDownButton;
+        private Label dealerScoreLabel;
+
         //private Button addPlayerButton;
         //private Button removePlayerButton;
 
@@ -66,9 +69,8 @@ namespace Blackjack
             dealerHitButton = new Button();
             splitButton = new Button();
             doubleDownButton = new Button();
-            //addPlayerButton = new Button();
-            //removePlayerButton = new Button();
-
+            dealerScoreLabel = new Label();
+            scoreLabel = new Label();
             ((ISupportInitialize)playersNumericUpDown).BeginInit();
             ((ISupportInitialize)decksNumericUpDown).BeginInit();
             SuspendLayout();
@@ -229,38 +231,30 @@ namespace Blackjack
             doubleDownButton.Text = "Double Down";
             doubleDownButton.UseVisualStyleBackColor = true;
             doubleDownButton.Click += doubleDownButton_Click;
-
             // 
-            // addPlayerButton
+            // dealerScoreLabel
             // 
-            //addPlayerButton.Location = new Point(50, 550); // Pas de locatie aan (X=50, Y=550)
-            //addPlayerButton.Size = new Size(200, 40); // Pas de grootte aan (Breedte=200, Hoogte=40)
-            //addPlayerButton.Name = "addPlayerButton";
-            //addPlayerButton.TabIndex = 16;
-            //addPlayerButton.Text = "Voeg Speler Toe";
-            //addPlayerButton.UseVisualStyleBackColor = true;
-            //addPlayerButton.Click += addPlayerButton_Click;
-
-            //
-            // removePlayerButton
-            //
-            //removePlayerButton = new Button();
-            //removePlayerButton.Location = new Point(270, 550);
-            //removePlayerButton.Size = new Size(200, 40);
-            //removePlayerButton.Name = "removePlayerButton";
-            //removePlayerButton.TabIndex = 17;
-            //removePlayerButton.Text = "Verwijder Speler";
-            //removePlayerButton.UseVisualStyleBackColor = true;
-            //removePlayerButton.Click += removePlayerButton_Click;
-           
-
-
+            dealerScoreLabel.Location = new Point(0, 0);
+            dealerScoreLabel.Name = "dealerScoreLabel";
+            dealerScoreLabel.Size = new Size(100, 23);
+            dealerScoreLabel.TabIndex = 1;
+            // 
+            // scoreLabel
+            // 
+            scoreLabel.AutoSize = true;
+            scoreLabel.Location = new Point(222, 408);
+            scoreLabel.Name = "scoreLabel";
+            scoreLabel.Size = new Size(48, 15);
+            scoreLabel.TabIndex = 0;
+            scoreLabel.Text = "Score: 0";
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1000, 800);
+            Controls.Add(scoreLabel);
+            Controls.Add(dealerScoreLabel);
             Controls.Add(shuffleButton);
             Controls.Add(drawButton);
             Controls.Add(dealerLabel);
@@ -277,14 +271,12 @@ namespace Blackjack
             Controls.Add(decksLabel);
             Controls.Add(splitButton);
             Controls.Add(doubleDownButton);
-            //Controls.Add(addPlayerButton);
-            //Controls.Add(removePlayerButton);
-
             Name = "Form1";
             Text = "Blackjack Game";
             ((ISupportInitialize)playersNumericUpDown).EndInit();
             ((ISupportInitialize)decksNumericUpDown).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

@@ -8,92 +8,104 @@ namespace Blackjack.Models
         private Card? hiddenCard;
         private List<Card> visibleCards;
         private Shoe shoe;
+        private int score;
+
+        public int Score
+        {
+            get => score;
+            private set => score = value;
+        }
 
         public Dealer(Shoe shoe)
         {
             this.shoe = shoe;
+            score = 0; // Start met een score van 0
             visibleCards = new List<Card>();
-            ResetHand();
         }
 
-        // Reset de hand van de dealer
+        public void AddPoints(int points)
+        {
+            Score += points;
+        }
+
+        public void SubtractPoints(int points)
+        {
+            Score -= points;
+        }
+
         public void ResetHand()
         {
             hiddenCard = null;
             visibleCards.Clear();
+            AddPoints(5); // Correcte reset, geef 5 punten
         }
 
-        // Pakt de eerste (verborgen) kaart voor de dealer
         public void TakeHiddenCard()
         {
-            hiddenCard = shoe.DealCard();
+            if (hiddenCard == null)
+            {
+                hiddenCard = shoe.DealCard();
+                AddPoints(10); // Correcte actie, geef 10 punten
+            }
+            else
+            {
+                SubtractPoints(5); // Onjuiste actie, trek 5 punten af
+                throw new InvalidOperationException("Dealer heeft al een verborgen kaart.");
+            }
         }
 
-        // Pakt een zichtbare kaart voor de dealer
         public Card TakeVisibleCard()
         {
-            Card card = shoe.DealCard();
+            var card = shoe.DealCard();
             visibleCards.Add(card);
+            AddPoints(10); // Correcte actie, geef 10 punten
             return card;
         }
 
-        // Maakt de verborgen kaart zichtbaar
         public void RevealHiddenCard()
         {
-            if (hiddenCard == null)
-                throw new InvalidOperationException("Er is geen verborgen kaart!");
-
-            visibleCards.Insert(0, hiddenCard);
-            hiddenCard = null;
+            if (hiddenCard != null)
+            {
+                visibleCards.Add(hiddenCard);
+                hiddenCard = null;
+                AddPoints(15); // Correcte actie, geef 15 punten
+            }
+            else
+            {
+                SubtractPoints(10); // Onjuiste actie, trek 10 punten af
+                throw new InvalidOperationException("Er is geen verborgen kaart om te onthullen.");
+            }
         }
 
-        // Controleert of de dealer blackjack heeft (21 punten met 2 kaarten)
         public bool HasBlackjack()
         {
-            if (hiddenCard == null || visibleCards.Count != 1)
-                return false;
-
-            return hiddenCard.Value + visibleCards[0].Value == 21;
+            bool blackjack = CalculateHandValue() == 21 && visibleCards.Count == 2;
+            if (blackjack)
+                AddPoints(20); // Blackjack, geef 20 punten
+            return blackjack;
         }
 
-
-        // Controleert of de dealer potentieel blackjack kan hebben (10/face of Aas als zichtbare kaart)
         public bool MightHaveBlackjack()
         {
-            if (visibleCards.Count != 1)
-                return false;
-
-            // Controleer of de zichtbare kaart een aas of een kaart met waarde 10 is
-            return visibleCards[0].Value == 10 || visibleCards[0].Rank == "A";
+            return visibleCards.Count == 1 && (visibleCards[0].Value == 10 || visibleCards[0].Value == 11);
         }
 
-
-        // Controleert of de verborgen kaart samen met de zichtbare kaart blackjack maakt
         public bool HiddenCardMakesBlackjack()
         {
-            if (hiddenCard == null || visibleCards.Count != 1)
+            if (hiddenCard == null)
                 return false;
 
-            // Controleer of de verborgen kaart samen met de zichtbare kaart blackjack maakt
-            return (hiddenCard.Value == 10 && visibleCards[0].Rank == "A") ||
-                   (hiddenCard.Rank == "A" && visibleCards[0].Value == 10);
+            bool blackjack = CalculateHandValue() == 21;
+            if (blackjack)
+                AddPoints(20); // Blackjack, geef 20 punten
+            return blackjack;
         }
 
-        // Berekent de waarde van de hand van de dealer
         public int CalculateHandValue()
         {
             int total = 0;
             int acesCount = 0;
 
-            // Tel de waarde van de verborgen kaart
-            if (hiddenCard != null)
-            {
-                total += hiddenCard.Value;
-                if (hiddenCard.Rank == "A")
-                    acesCount++;
-            }
-
-            // Tel de waarde van de zichtbare kaarten
             foreach (var card in visibleCards)
             {
                 total += card.Value;
@@ -101,48 +113,41 @@ namespace Blackjack.Models
                     acesCount++;
             }
 
-            // Azen kunnen 1 of 11 punten waard zijn
-            // Als de totale waarde > 21 is en we hebben azen, dan maken we de waarde van een aas 1 in plaats van 11
             while (total > 21 && acesCount > 0)
             {
-                total -= 10; // Verlaag de totale waarde met 10 (11 - 1)
+                total -= 10;
                 acesCount--;
             }
 
             return total;
         }
 
-        // Geeft een string representatie van de zichtbare kaarten
         public string GetVisibleCardsString()
         {
-            if (visibleCards.Count == 0)
-                return "Geen zichtbare kaarten";
-
             return string.Join(", ", visibleCards);
         }
 
-        // Dealer pakt tot hij 17 of hoger heeft.
-        public bool ShouldHit()
+        public bool ShouldHit(bool userDecision)
         {
-            return CalculateHandValue() < 17;
+            int handValue = CalculateHandValue();
+            if (handValue < 17)
+            {
+                if (!userDecision) // Als de dealer ervoor kiest om niet te hitten
+                {
+                    SubtractPoints(10); // Strafpunten voor een onjuiste beslissing
+                    return false;
+                }
+                return true; // Dealer moet hitten
+            }
+            return false; // Dealer hoeft niet te hitten
         }
 
 
         public void DealerTurn()
         {
-            // Make sure to call RevealHiddenCard if there is a hidden card
-            if (hiddenCard != null)
-            {
-                RevealHiddenCard();  // Use this method instead of directly manipulating the collections
-            }
-
-            // Blijf kaarten trekken tot de dealer 17 >= heeft
-            while (ShouldHit())
-            {
-                TakeVisibleCard();
-            }
+            AddPoints(10); // Correcte beurt, geef 10 punten
         }
-        // Add this new method to check if the dealer has a hidden card
+
         public bool HasHiddenCard()
         {
             return hiddenCard != null;

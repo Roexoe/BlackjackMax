@@ -12,6 +12,7 @@ namespace Blackjack
         private List<Player> players;
         private bool gameStarted = false;
         private int currentPlayerIndex = 0;
+        private int score = 0; 
 
         // Stap in het uitdelen van kaarten
         private enum DealingStep
@@ -79,6 +80,8 @@ namespace Blackjack
 
         private void startGameButton_Click(object sender, EventArgs e)
         {
+            dealer.ResetHand();
+            UpdateDealerScore();
             // Controleer of het deck nog voldoende kaarten heeft
             if (shoe.RemainingPercentage <= 25)
             {
@@ -146,7 +149,8 @@ namespace Blackjack
         {
             dealer.TakeVisibleCard();
             UpdateGameDisplay();
-            if (!dealer.ShouldHit())
+            UpdateDealerScore(); // Update de score in de UI
+            if (!dealer.ShouldHit(true)) // Pass a boolean value for 'userDecision'
             {
                 dealerHitButton.Enabled = false;
                 DetermineResults();
@@ -157,6 +161,15 @@ namespace Blackjack
         private bool AskDealerApproval(string message)
         {
             var result = MessageBox.Show(message, "Dealer Approval", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                score += 1; // Correcte keuze, 1 punt erbij
+            }
+            else
+            {
+                score -= 1; // Foute keuze, 1 strafpunt
+            }
+            UpdateScoreDisplay(); // Update de score in de UI
             return result == DialogResult.Yes;
         }
 
@@ -530,16 +543,24 @@ namespace Blackjack
         private bool AskDealerForCard()
         {
             var result = MessageBox.Show("Wilt u een kaart pakken?", "Dealer Approval", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                score += 1; // Correcte keuze, 1 punt erbij
+            }
+            else
+            {
+                score -= 1; // Foute keuze, 1 strafpunt
+            }
+            UpdateScoreDisplay(); // Update de score in de UI
             return result == DialogResult.Yes;
         }
 
         private void DealerPlay()
         {
-            // Dealer speelt zijn beurt
             statusLabel.Text = "De dealer speelt nu...";
 
-            // First reveal the hidden card
-            if (dealer.HasHiddenCard())  // We'll need to add this method to Dealer
+            // Onthul de verborgen kaart als deze nog niet is onthuld
+            if (dealer.HasHiddenCard())
             {
                 if (AskDealerApproval("Wilt u de verborgen kaart onthullen?"))
                 {
@@ -550,31 +571,25 @@ namespace Blackjack
             }
 
             // Dealer blijft kaarten trekken tot minstens 17 of totdat hij besluit te stoppen
-            while (dealer.ShouldHit())
+            while (true)
             {
-                if (AskDealerForCard())
+                bool userDecision = AskDealerForCard(); // Vraag de gebruiker of de dealer moet hitten
+                if (!userDecision || !dealer.ShouldHit(userDecision)) // Controleer of de dealer moet stoppen
                 {
-                    dealer.TakeVisibleCard();
-                    UpdateGameDisplay();
-                    statusLabel.Text = $"Dealer heeft een kaart gepakt. Totale waarde: {dealer.CalculateHandValue()}";
+                    break; // Stop als de dealer niet meer hoeft te hitten
+                }
 
-                    // Give time to see the card
-                    Application.DoEvents();
-                    System.Threading.Thread.Sleep(1000);
-                }
-                else
-                {
-                    // Dealer chooses not to take a card
-                    break;
-                }
+                dealer.TakeVisibleCard();
+                UpdateGameDisplay();
+                statusLabel.Text = $"Dealer heeft een kaart gepakt. Totale waarde: {dealer.CalculateHandValue()}";
+
+                UpdateDealerScore(); // Werk de score bij
             }
-
-            // Update display
-            UpdateGameDisplay();
 
             // Bepaal de resultaten
             DetermineResults();
         }
+
 
         // Bepaal de resultaten van het spel
         // Bepaal de resultaten van het spel
@@ -586,7 +601,6 @@ namespace Blackjack
                 $"Dealer is busted met {dealerValue}! " :
                 $"Dealer eindigt met {dealerValue}. ";
 
-            // Controleer uitslag voor elke speler
             foreach (var player in players)
             {
                 int playerValue = player.CalculateHandValue();
@@ -594,18 +608,22 @@ namespace Blackjack
                 if (player.IsBusted)
                 {
                     results += $"{player.Name} verliest (busted). ";
+                    score -= 1; // Strafpunt voor verliezen
                 }
                 else if (dealerBusted)
                 {
                     results += $"{player.Name} wint (dealer busted). ";
+                    score += 1; // Punt voor winnen
                 }
                 else if (playerValue > dealerValue)
                 {
                     results += $"{player.Name} wint met {playerValue} tegen {dealerValue}. ";
+                    score += 1; // Punt voor winnen
                 }
                 else if (playerValue < dealerValue)
                 {
                     results += $"{player.Name} verliest met {playerValue} tegen {dealerValue}. ";
+                    score -= 1; // Strafpunt voor verliezen
                 }
                 else
                 {
@@ -614,6 +632,9 @@ namespace Blackjack
             }
 
             statusLabel.Text = results;
+            UpdateScoreDisplay(); // Update de score in de UI
+        
+
 
             // Controleer of de shoe minder dan 25% kaarten bevat
             if (shoe.IsLastDeckLowOnCards)
@@ -754,9 +775,23 @@ namespace Blackjack
             return defaultName;
         }
 
+
         private void statusLabel_Click(object sender, EventArgs e)
         {
 
+        }
+        private void UpdateDealerScore()
+        {
+            dealerScoreLabel.Text = $"Dealer Score: {dealer.Score}";
+        }
+
+        private void dealerScoreLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void UpdateScoreDisplay()
+        {
+            scoreLabel.Text = $"Score: {score}"; // Zorg ervoor dat er een `scoreLabel` in de UI is
         }
     }
 }
