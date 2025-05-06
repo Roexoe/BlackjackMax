@@ -45,11 +45,11 @@ namespace Blackjack.Models
             if (hiddenCard == null)
             {
                 hiddenCard = shoe.DealCard();
-                AddPoints(10); // Correcte actie, geef 10 punten
+                 //AddPoints(10); // Correcte actie, geef 10 punten
             }
             else
             {
-                SubtractPoints(5); // Onjuiste actie, trek 5 punten af
+                // SubtractPoints(5); // Onjuiste actie, trek 5 punten af
                 throw new InvalidOperationException("Dealer heeft al een verborgen kaart.");
             }
         }
@@ -58,7 +58,7 @@ namespace Blackjack.Models
         {
             var card = shoe.DealCard();
             visibleCards.Add(card);
-            AddPoints(10); // Correcte actie, geef 10 punten
+           // AddPoints(10); // Correcte actie, geef 10 punten
             return card;
         }
 
@@ -68,7 +68,7 @@ namespace Blackjack.Models
             {
                 visibleCards.Add(hiddenCard);
                 hiddenCard = null;
-                AddPoints(15); // Correcte actie, geef 15 punten
+             //   AddPoints(15); // Correcte actie, geef 15 punten
             }
             else
             {
@@ -81,7 +81,7 @@ namespace Blackjack.Models
         {
             bool blackjack = CalculateHandValue() == 21 && visibleCards.Count == 2;
             if (blackjack)
-                AddPoints(20); // Blackjack, geef 20 punten
+              //  AddPoints(20); // Blackjack, geef 20 punten
             return blackjack;
         }
 
@@ -97,7 +97,7 @@ namespace Blackjack.Models
 
             bool blackjack = CalculateHandValue() == 21;
             if (blackjack)
-                AddPoints(20); // Blackjack, geef 20 punten
+              //  AddPoints(20); // Blackjack, geef 20 punten
             return blackjack;
         }
 
@@ -145,7 +145,7 @@ namespace Blackjack.Models
 
         public void DealerTurn()
         {
-            AddPoints(10); // Correcte beurt, geef 10 punten
+        //    AddPoints(10); // Correcte beurt, geef 10 punten
         }
 
         public bool HasHiddenCard()
